@@ -19,12 +19,15 @@ public class Main extends Application {
         primaryStage.setTitle("Hello World");
 
         // create a textfield
-        TextField b = new TextField("Name");
+        TextField b = new TextField("First Name");
+        TextField c = new TextField("Last Name");
 
         TilePane tp = new TilePane();
         Label l = new Label("no text");
-        Label f = new Label("Enter Name:");
-        tp.getChildren().add(f);
+        Label fn = new Label("Enter First Name:");
+        Label ln = new Label("Enter Last Name: ");
+        tp.getChildren().add(fn);
+
 
         EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e)
@@ -40,6 +43,9 @@ public class Main extends Application {
 
         // add textfield
         tp.getChildren().add(b);
+        tp.getChildren().add(ln);
+        tp.getChildren().add(c);
+        tp.getChildren().add(new Label("You entered: "));
         tp.getChildren().add(l);
         // add textfield
         //r.getChildren().add(b);
