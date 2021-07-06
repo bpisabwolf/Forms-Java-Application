@@ -12,11 +12,43 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
 
 public class Main extends Application {
-    private String textToSave = "Nothing";
+
+    //application idea so far
+    //Design
+    /*
+    Date: __________ - Data entered: String date
+
+    TITLE TODAY ----------------------------------------------
+    Tasks left: __________ - Must be split into two catagories,
+        forward pallet      - Integer
+        p pallet            - Integer
+        total pallet        - Integer
+    Inbound Left to unload _______ - Integer
+    Outbounds left to load _______ - Intefer
+    Regular labor hours left _______ - Double
+    OT Labor hours left ________ - Double
+        NOTE: This could potentially have many people listed.
+        Suggested working idea:
+        How many regular labor hours do you want to report? Enter integer of workers
+            New prompt appears with Name (String) and hours (Double)
+        Same for OT Labor hours
+
+    TITLE TOMORROW --------------------------------------------
+    Inbounds scheduled __________ - Integer
+    FLOOR loaded inbounds scheduled __________ - Integer
+    Railcars ______________ - Integer
+    Full Pallet picks _____________ - Integer
+    Partial Pallet Picks ____________ - Integer
+    Palletes on Floor ___________ - Integer
+     */
     @Override
+    public String textToSave = "Nothing";
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("Hello World");
+
+        //creating textfields
+
 
         // create a textfield
         TextField b = new TextField("First Name");
