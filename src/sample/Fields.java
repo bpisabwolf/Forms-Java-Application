@@ -108,7 +108,7 @@ public interface Fields {
         TextField palletEntry = new TextField("# on Floor");
     }
 
-    public void fullyAutomated(String lTexts[], String lConfTexts[], String txtFldText[]);
+    //public void IterfacefullyAutomated(String lTexts[], String lConfTexts[], String txtFldText[]);
 
 
 }
