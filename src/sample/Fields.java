@@ -51,18 +51,64 @@ import java.util.ArrayList;
     Palletes on Floor ___________ - Integer
      */
 
-public class Fields {
+public interface Fields {
 
-    private ArrayList<Label> labels = new ArrayList<>();
-    private ArrayList<TextField> dataEntry = new ArrayList<>();
-    public Fields(){
+    ArrayList<Label> labels = new ArrayList<>();
+    ArrayList<Label> confLabels = new ArrayList<>();
+    ArrayList<TextField> dataEntry = new ArrayList<>();
 
-    }
 
     private void createLabels(){
-        Label Date = new Label("Today's Date");
-        labels.add(Date);
-        Label Tasks = new Label("Tasks Left");
+        //Date Label and TextField
+        labels.add(new Label("Today's Date"));
+        confLabels.add(new Label("TEST"));
+        dataEntry.add(new TextField("dd/mm/yyyy"));
+        //Tasks
+        labels.add(new Label("FP Tasks Left: "));
+        confLabels.add(new Label(""));
+        dataEntry.add(new TextField("# of FP tasks"));
+
+
+        labels.add(new Label("PP Tasks Left"));
+        confLabels.add(new Label(""));
+        dataEntry.add(new TextField("# of PP Tasks"));
+        //Total tasks will be calculated later
+        Label totalTasksReported;
+
+        //Inbount and outbound entries
+        labels.add(new Label("Inbound Left to Unload: "));
+        confLabels.add(new Label(""));
+        dataEntry.add(new TextField("# to unload"));
+
+        labels.add(new Label("Outbound Left o Load: "));
+        confLabels.add(new Label(""));
+        new TextField("# to load");
+
+        Label hl = new Label("Regular and OT Hours Left");
+        Label hlConfirm = new Label("");
+        TextField employeeHourEntry =  new TextField("# of people");
+        //will be drop down where people can be selected from server
+        //must set up database for this
+
+        //FIELDS FOR TOMORROW SECTION
+        Label inSh = new Label("Inbounds Scheduled: ");
+        Label inShConfirm = new Label("");
+        TextField inSchedEntry = new TextField("# of scheduled");
+
+        Label flSched =  new Label("FLOOR loaded inbounds scheduled");
+        Label flSchedConfirm = new Label("");
+        TextField floorInEntry =  new TextField("# of scheduled");
+
+        Label rc = new Label("Railcars");
+        Label rcComfirm = new Label("");
+        TextField railcarEntry = new TextField("# of cars");
+
+        Label plf = new Label("Pallets on Floor: ");
+        Label plfConfirm = new Label("");
+        TextField palletEntry = new TextField("# on Floor");
     }
+
+    public void fullyAutomated(String lTexts[], String lConfTexts[], String txtFldText[]);
+
 
 }
