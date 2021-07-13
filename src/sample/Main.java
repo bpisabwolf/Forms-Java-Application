@@ -16,6 +16,7 @@ import javafx.scene.layout.TilePane;
 import javafx.stage.Stage;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
+import javafx.util.Pair;
 
 import java.lang.reflect.Array;
 import java.time.LocalDateTime;
@@ -128,8 +129,7 @@ public class Main extends Application implements Fields{
     }
 
     public FormRow createEntryField(String labelText, String entryText, String confirmText){
-        FormRow temp = new FormRow(labelText, entryText, confirmText, false, "");
-        return temp;
+        return new FormRow(labelText, entryText, confirmText, false, "");
     }
 
 
@@ -170,6 +170,16 @@ public class Main extends Application implements Fields{
             int finalCol = col + 1;
 
             finalCurTextEntry.setOnAction(new EventHandler<ActionEvent>() {
+                /*Current problem, as of now, when trying to automate everything...
+                it works well if a person presses enter ONCE and never comes back to a field.
+                if they go back to a field (or skip a field) and press enter, the form breaks
+                This is due to the automatization process only counting fields and assigning
+                event handlers via the fields "position"
+                This is not handy
+                Easy/brute force method.... have a hardcoded, seperate event hander for every field
+                alternative, get label when in field and choose event on that (may or may not work)
+                also the alternative may not be scalable
+                 */
                 @Override
                 public void handle(ActionEvent event) {
                     textToSave = finalCurTextEntry.getText();
@@ -199,10 +209,13 @@ public class Main extends Application implements Fields{
             return;
         }
         ArrayList<FormRow> savedFields = shiftFields(g, curRow);
-        ComboBox comb;
+        ArrayList<Pair<String, Double>> employeeAndHours = getEmployeeInformation();
+
+        ArrayList<ComboBox> employeeEntrees = createComboBoxFields(employeeAndHours, numEmployee);
         for(int i = 0; i < numEmployee; i++){
-            g.add(new ComboBox<>());
-            g.add(new TextField("Employee Hours"), 1,(curRow +1)+ i);
+            int realRow = (curRow + 1) + i;
+            g.add(employeeEntrees.get(i), 0, realRow);
+            g.add(new TextField("Employee Hours"), 1,realRow);
             newAdded++;
         }
 
@@ -210,6 +223,31 @@ public class Main extends Application implements Fields{
         //adding the rest of the fields back
 
 
+    }
+
+    public ArrayList<ComboBox> createComboBoxFields(ArrayList<Pair<String, Double>> emp, int numEmp){
+        ArrayList<ComboBox> res = new ArrayList<>();
+        ArrayList<String> keys = new ArrayList<>();
+        ComboBox temp;
+        //getting strings from pairs, and then making lists to add to combo box
+        for(Pair<String, Double> e: emp){
+            keys.add(e.getKey());
+        }
+        for(int i = 0; i < numEmp; i++){
+            temp = new ComboBox(FXCollections.observableList(keys));
+            res.add(temp);
+        }
+        return res;
+    }
+
+    public ArrayList<Pair<String, Double>> getEmployeeInformation(){
+        //Dummy example
+        ArrayList<Pair<String, Double>> example = new ArrayList<>();
+        example.add(new Pair<>("John Doe", 8.0));
+        example.add(new Pair<>("Jane deer", 7.0));
+        example.add(new Pair<>("Tom Smith", 5.5));
+        example.add(new Pair<>("Mary Sue", 6.5));
+        return example;
     }
 
     public ArrayList<FormRow> shiftFields(GridPane g, int row){
