@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
 
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -193,18 +194,25 @@ public class Main extends Application implements Fields{
     public void addEmployeeFields(GridPane g, int numEmployee, int curRow, int curCol){
         System.out.println("Adding Employee fields");
         System.out.print("Cur Rows: " + curRow + ", and cur Col: " + curCol);
+        int newAdded = 0;
         if(numEmployee < 1){
             return;
         }
+        ArrayList<FormRow> savedFields = shiftFields(g, curRow);
+        ComboBox comb;
         for(int i = 0; i < numEmployee; i++){
-            g.add(new TextField("Employee Hours"), curRow, 0);
+            g.add(new ComboBox<>());
+            g.add(new TextField("Employee Hours"), 1,(curRow +1)+ i);
+            newAdded++;
         }
-        shiftFields(g, curRow);
+
+
+        //adding the rest of the fields back
 
 
     }
 
-    public void shiftFields(GridPane g, int row){
+    public ArrayList<FormRow> shiftFields(GridPane g, int row){
         Label l;
         TextField entry;
         Label conf;
@@ -221,7 +229,14 @@ public class Main extends Application implements Fields{
             conf = (Label)getNodeFromGrid(g, i, 2);
             System.out.println("Checking text: " + l.getText());
             retrievedFields.add(new FormRow(l, entry, conf));
+            //deleting what is left
+            System.out.println("Current i: " + i);
+          //  g.getChildren().remove(0, i);
+            g.getChildren().remove(l);
+            g.getChildren().remove(entry);
+            g.getChildren().remove(conf);
         }
+        return retrievedFields;
     }
 
    /* public EventHandler getTextHandler(){
