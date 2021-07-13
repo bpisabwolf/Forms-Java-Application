@@ -21,15 +21,21 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+import static java.lang.Integer.numberOfTrailingZeros;
+import static java.lang.Integer.parseInt;
+
+
 public class Main extends Application implements Fields{
 
-
+    Boolean DEBUG = false;
     public int fieldsAdded = 0;
+    public int selRow, selCol;
     public String textToSave = "Nothing";
     public int fp, pp, totalP;
     public Boolean DEFAULTS = false;
-
-
+    public int totalNodes = 0;
+    public int fieldsSoFar = 0;
+    public int employeeFields=0;
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
@@ -60,281 +66,12 @@ public class Main extends Application implements Fields{
         Button submit = new Button("Submit Form");
         int rowPos = 0;
 
-       // GridPane g = runDefaultForm(entryRows,defLabels, defTextEntry, defConfLabels);
+       GridPane g = runDefaultForm(entryRows,defLabels, defTextEntry, defConfLabels);
+       setEntryEventHandlers(g);
 
 
 
-        //Tasks
 
-        Label pptl = new Label("PP Tasks Left");
-        Label pptlConfirm = new Label("");
-        TextField ppEntry = new TextField("# of PP Tasks");
-        //Total tasks will be calculated later
-        Label totalTasksReported;
-
-        //Inbount and outbound entries
-        Label ib = new Label("Inbound Left to Unload: ");
-        Label ibConfirm = new Label("");
-        TextField inboundEntry = new TextField("# to unload");
-        Label ob = new Label("Outbound Left o Load: ");
-        Label obConfirm = new Label("");
-        TextField outboundEntry = new TextField("# to load");
-
-        Label hl = new Label("Regular and OT Hours Left");
-        Label hlConfirm = new Label("");
-        TextField employeeHourEntry =  new TextField("# of people");
-        //will be drop down where people can be selected from server
-        //must set up database for this
-
-        //FIELDS FOR TOMORROW SECTION
-        Label inSh = new Label("Inbounds Scheduled: ");
-        Label inShConfirm = new Label("");
-        TextField inSchedEntry = new TextField("# of scheduled");
-
-        Label flSched =  new Label("FLOOR loaded inbounds scheduled");
-        Label flSchedConfirm = new Label("");
-        TextField floorInEntry =  new TextField("# of scheduled");
-
-        Label rc = new Label("Railcars");
-        Label rcComfirm = new Label("");
-        TextField railcarEntry = new TextField("# of cars");
-
-        Label plf = new Label("Pallets on Floor: ");
-        Label plfConfirm = new Label("");
-        TextField palletEntry = new TextField("# on Floor");
-
-        //Gonna try GridPane
-        GridPane g = new GridPane();
-        g.add(defButton, 0, rowPos);
-        //TilePane tp = new TilePane();
-        g.setPadding(new Insets(10, 10, 10, 10));
-        g.setMinSize(300, 500);
-        g.setVgap(5);
-        g.setHgap(5);
-
-        rowPos++;
-        //added Date Entry and labels
-        //Date Label and TextField
-        Label cd = new Label("Today's Date");
-        Label cdConfirm = new Label("TEST");
-        TextField dateEntry = new TextField(timeString);
-        g.add(cd, 0, rowPos);
-        g.add(dateEntry, 1, rowPos);
-        g.add(cdConfirm,2,rowPos);
-
-        rowPos++;
-        cd = new Label("FP Tasks Left: ");
-        cdConfirm = new Label("");
-        dateEntry = new TextField("# of FP tasks");
-        //Added Forward pallet
-        g.add(cd, 0, rowPos);
-        g.add(dateEntry, 1, rowPos);
-        g.add(cdConfirm, 2, rowPos);
-
-        rowPos++;
-        //add P Pallet
-        g.add(pptl, 0, rowPos);
-        g.add(ppEntry, 1, rowPos);
-        g.add(pptlConfirm, 2, rowPos);
-
-        rowPos++;
-        //inbounds
-        g.add(ib, 0, rowPos);
-        g.add(inboundEntry, 1, rowPos);
-        g.add(ibConfirm, 2, rowPos);
-
-        rowPos++;
-        //outbounds
-        g.add(ob, 0, rowPos);
-        g.add(outboundEntry, 1, rowPos);
-        g.add(obConfirm, 2, rowPos);
-
-        rowPos++;
-        //hours left
-        g.add(hl, 0, rowPos);
-        g.add(employeeHourEntry, 1, rowPos);
-        g.add(hlConfirm, 2, rowPos);
-
-
-        rowPos++;
-        ObservableList<String> options =
-                FXCollections.observableArrayList(
-                        //this will eventually retrieve info from database
-                        "John Doe",
-                        "Jane Deer",
-                        "John Smith"
-                );
-        final ComboBox comboBox = new ComboBox(options);
-        g.add(comboBox, 0, rowPos);
-
-        rowPos++;
-        g.add(inSh, 0, rowPos);
-        g.add(inSchedEntry, 1, rowPos);
-        g.add(inShConfirm, 2, rowPos);
-
-        rowPos++;
-        g.add(flSched, 0, rowPos);
-        g.add(floorInEntry, 1, rowPos);
-        g.add(flSchedConfirm, 2, rowPos);
-
-        rowPos++;
-        g.add(rc, 0, rowPos);
-        g.add(railcarEntry, 1, rowPos);
-        g.add(rcComfirm, 2, rowPos);
-
-        rowPos++;
-        g.add(plf, 0, rowPos);
-        g.add(palletEntry, 1, rowPos);
-        g.add(plfConfirm, 3, rowPos);
-
-
-        //UNECCESSARY BUT USE FOR REFERENCE
-        /*
-        //getChildren works mostly with stack pains
-        //g.getChildren().add(cd);
-        //g.getChildren().add(dateEntry);
-
-        Label l = new Label("no text");
-        Label fn = new Label("Enter First Name:");
-        Label ln = new Label("Enter Last Name: ");
-        tp.getChildren().add(fn);
-
-
-        EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e)
-            {
-                l.setText(b.getText());
-                System.out.println(b.getText());
-                textToSave = b.getText();
-            }
-        };
-        // create a stack pane
-        //StackPane r = new StackPane();
-        b.setOnAction(event);
-
-        // add textfield
-        tp.getChildren().add(b);
-        tp.getChildren().add(ln);
-        tp.getChildren().add(c);
-        tp.getChildren().add(new Label("You entered: "));
-        tp.getChildren().add(l);
-        // add textfield
-        //r.getChildren().add(b);
-           */
-
-        //OLD SCENE STUFF
-
-        //Scene sc = new Scene(tp,600,600);
-        //primaryStage.setScene(new Scene(root, 300, 275));
-
-        //DEFUNCT EVENT HANDLERS
-       /* EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e)
-            {
-                cdConfirm.setText(dateEntry.getText());
-                System.out.println(dateEntry.getText());
-                textToSave = dateEntry.getText();
-            }
-        };*/
-
-
-       //EVENT HANDlERS
-       EventHandler<ActionEvent> EnterHandler = event -> {
-           defButton.setText("Accepted");
-           event.consume();
-       };
-
-       defButton.setOnAction(new EventHandler<ActionEvent>() {
-           @Override
-           public void handle(ActionEvent actionEvent) {
-               DEFAULTS = true;
-           }
-       });
-
-       /*
-       EventHandler<ActionEvent> fieldEnterHandler = event -> {
-           dateEntry.requestFocus();
-           event.consume();
-       };
-       /*
-
-        dateEntry.setOnAction(event -> {
-            textToSave = dateEntry.getText();
-            cdConfirm.setText(textToSave);
-            fpEntry.requestFocus();
-        });
-
-        /*fpEntry.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                textToSave = fpEntry.getText();
-                fptlConfirm.setText(textToSave);
-                ppEntry.requestFocus();
-            }
-        });*/
-
-        ppEntry.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                textToSave = ppEntry.getText();
-                pptlConfirm.setText(textToSave);
-                inboundEntry.requestFocus();
-            }
-        });
-
-        inboundEntry.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                textToSave = inboundEntry.getText();
-                ibConfirm.setText(textToSave);
-                outboundEntry.requestFocus();
-            }
-        });
-
-        outboundEntry.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                textToSave = outboundEntry.getText();
-                obConfirm.setText(textToSave);
-                employeeHourEntry.requestFocus();
-            }
-        });
-
-        inSchedEntry.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                textToSave = inSchedEntry.getText();
-                inShConfirm.setText(textToSave);
-                floorInEntry.requestFocus();
-            }
-        });
-
-        floorInEntry.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                textToSave = floorInEntry.getText();
-                flSchedConfirm.setText(textToSave);
-                railcarEntry.requestFocus();
-            }
-        });
-
-        railcarEntry.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                textToSave = railcarEntry.getText();
-                rcComfirm.setText(textToSave);
-                palletEntry.requestFocus();
-            }
-        });
-
-        palletEntry.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                textToSave = palletEntry.getText();
-                plfConfirm.setText(textToSave);
-                //floorInEntry.requestFocus();;
-            }
-        });
 
 
         Scene sc = new Scene(g,500,600);
@@ -346,6 +83,9 @@ public class Main extends Application implements Fields{
     }
 
 
+
+
+    //Creates a Gridpane
     public GridPane runDefaultForm(ArrayList<FormRow> allRows, String labels[], String entries[], String confirms[]){
         GridPane newGrid;
         allRows = fullyAutomated(labels, entries, confirms);
@@ -368,7 +108,6 @@ public class Main extends Application implements Fields{
             g.add(f.getLabel(), 0, rowp);
             g.add(f.getTextField(), 1, rowp);
             g.add(f.getConfirmLabel(), 2, rowp);
-
             //depending on
             rowp++;
         }
@@ -412,15 +151,77 @@ public class Main extends Application implements Fields{
     public void setEntryEventHandlers(GridPane g){
         int row = 0, col = 0;
         TextField curTextEntry = null;
+        TextField nextTextEntry = null;
         Label curConfLabel = null;
+        final int[] curFields = {0};
+
         for(int i = 0; i < fieldsAdded; i++){
             curTextEntry = (TextField) getNodeFromGrid(g, i, col + 1);
+            nextTextEntry = (TextField)getNodeFromGrid(g,i + 1, col + 1 );
             curConfLabel = (Label)getNodeFromGrid(g, i, col + 2);
 
             //Implement EVENT HANDLER
-            EventHandler
+            TextField finalCurTextEntry = curTextEntry;
+            Label finalCurConfLabel = curConfLabel;
+            TextField finalNextTextEntry = nextTextEntry;
+            boolean finalNode = false;
+            int finalRow =  i;
+            int finalCol = col + 1;
+
+            finalCurTextEntry.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    textToSave = finalCurTextEntry.getText();
+                    finalCurConfLabel.setText(textToSave);
+                    System.out.println(fieldsSoFar);
+                    System.out.println(fieldsAdded);
+                    if(fieldsSoFar < fieldsAdded-1){
+                        if(fieldsSoFar == 4){
+                            addEmployeeFields(g, parseInt(finalCurConfLabel.getText()), finalRow, finalCol);
+                        }
+                        else {
+                            finalNextTextEntry.requestFocus();
+                        }
+                    }
+
+                   fieldsSoFar++;
+                }
+            });
         }
-        //Label confLabelFromGrid = getNodeFromGrid(g, )
+    }
+
+    public void addEmployeeFields(GridPane g, int numEmployee, int curRow, int curCol){
+        System.out.println("Adding Employee fields");
+        System.out.print("Cur Rows: " + curRow + ", and cur Col: " + curCol);
+        if(numEmployee < 1){
+            return;
+        }
+        for(int i = 0; i < numEmployee; i++){
+            g.add(new TextField("Employee Hours"), curRow, 0);
+        }
+        shiftFields(g, curRow);
+
+
+    }
+
+    public void shiftFields(GridPane g, int row){
+        Label l;
+        TextField entry;
+        Label conf;
+
+        ArrayList<FormRow> retrievedFields = new ArrayList<>();
+
+        System.out.println("Starting shifting fields");
+        System.out.println("Current Fields added:  " + fieldsAdded);
+        System.out.println("Field number at: " + row);
+
+        for(int i = row+1; i < fieldsAdded;i++){
+            l = (Label)getNodeFromGrid(g, i, 0);
+            entry = (TextField)getNodeFromGrid(g, i, 1);
+            conf = (Label)getNodeFromGrid(g, i, 2);
+            System.out.println("Checking text: " + l.getText());
+            retrievedFields.add(new FormRow(l, entry, conf));
+        }
     }
 
    /* public EventHandler getTextHandler(){
@@ -452,6 +253,12 @@ public class Main extends Application implements Fields{
             if(b == true){
                 field = fieldName;
             }
+        }
+
+        public FormRow(Label l, TextField t, Label c){
+            lblTxt = l;
+            entryText = t;
+            confTxt = c;
         }
 
 
