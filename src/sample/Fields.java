@@ -13,7 +13,16 @@ import javafx.scene.control.*;
 
 import java.util.ArrayList;
 
-
+/*Current problem, as of now, when trying to automate everything...
+               it works well if a person presses enter ONCE and never comes back to a field.
+               if they go back to a field (or skip a field) and press enter, the form breaks
+               This is due to the automatization process only counting fields and assigning
+               event handlers via the fields "position"
+               This is not handy
+               Easy/brute force method.... have a hardcoded, seperate event hander for every field
+               alternative, get label when in field and choose event on that (may or may not work)
+               also the alternative may not be scalable
+                */
 //application idea so far
 //Design
     /*
