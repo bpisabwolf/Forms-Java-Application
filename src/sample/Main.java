@@ -1,20 +1,17 @@
 package sample;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 //import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 //import javafx.scene.layout.TilePane;
-import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 //import javafx.scene.layout.StackPane;
@@ -26,6 +23,9 @@ import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.ListIterator;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 //import static java.lang.Integer.numberOfTrailingZeros;
 import static java.lang.Integer.parseInt;
@@ -43,7 +43,7 @@ public class Main extends Application implements Fields{
   //  public int totalNodes = 0;
     public int fieldsSoFar = 0;
     public final int DEFAULT_FIELDS = 8;
-   // public int employeeFields = 0;
+    public int employeeFields = 0;
     String employeeLabel = "# of Employees Working";//String for employees working field, to keep track of database use
     String teminationLabel = "Pallets on Floor";//Very last label, act as a termination label
     public TextField userSelectedTextField;
@@ -134,7 +134,7 @@ public class Main extends Application implements Fields{
 
          */
 
-        setEntryEventHandlers(g, sc, primaryStage, entryRows);
+        //setEntryEventHandlers(g, sc, primaryStage, entryRows);
         primaryStage.setScene(sc);
 
 
@@ -143,17 +143,31 @@ public class Main extends Application implements Fields{
     }
 
 
-
-
-    //Creates a Gridpane
+    //Creates a Gridpane, ran first
     public GridPane runDefaultForm(ArrayList<FormRow> allRows, String labels[], String entries[], String confirms[]){
         GridPane newGrid;
-        allRows = fullyAutomated(labels, entries, confirms);
-        newGrid = autoAdd(allRows);
+        allRows = fullyAutomated(labels, entries, confirms); //
+        newGrid = autoAdd(allRows);//goes to
         return newGrid;
     }
 
+    //creates FormRow objects out of all strings passed and saves it in Arraylist of FormRow objects
+    //Takes a lists of strings for labels, textfields, and initial confirmation feels respectively
+    //Arraylist is returned of all FormRow objects (Label, TextField, Label)
+    //see FormRow object declaration at bottom of file for more info
+    //returns the resulting Arraylist of FormRow objects
+    // @Override
+    public ArrayList<FormRow> fullyAutomated(String[] lTexts,  String[] txtFldText, String[] lConfTexts) {
+        ArrayList<FormRow> temp = new ArrayList<>();
+        for(int i = 0; i < lTexts.length; i++){
+            temp.add(createEntryField(lTexts[i], txtFldText[i], lConfTexts[i]));//look at FormRow object
+        }
+        return temp;//filled arraylist of FormRow objects
+    }
+
     //creates a grid pane that will be sent back to start with added fields
+    //grid pane add nodes from FormRow object passed in
+    //In this version, event handlers will be sent in
     public GridPane autoAdd(ArrayList<FormRow> formRows){
         int rowp = 0;
         GridPane g = new GridPane();
@@ -164,14 +178,36 @@ public class Main extends Application implements Fields{
         g.setVgap(5);
         g.setHgap(5);
 
-        for(FormRow f: formRows){
-            g.add(f.getLabel(), 0, rowp);
-            g.add(f.getTextField(), 1, rowp);
-            g.add(f.getConfirmLabel(), 2, rowp);
-            //depending on
+
+        ListIterator<FormRow> li = formRows.listIterator();
+        FormRow nextOne;
+        //
+        while(li.hasNext()){
+            FormRow cur = li.next();
+            g = addNode(g,cur, rowp);
+            cur.setCoordinates(0, 1, 2, rowp);
+            if(li.hasNext()){
+                nextOne = li.next();
+            }
+            else{
+                nextOne = null;
+            }
+            setEventListenerIndividually(g, g.getScene(),cur, nextOne, rowp);
+            if(nextOne != null) {
+                li.previous();
+            }
+
             rowp++;
         }
+
         fieldsAdded = rowp;
+        return g;
+    }
+
+    public GridPane addNode(GridPane g, FormRow cur, int r){
+        g.add(cur.getLabel(), 0, r);
+        g.add(cur.getTextField(), 1, r);
+        g.add(cur.getConfirmLabel(), 2, r);
         return g;
     }
 
@@ -180,16 +216,7 @@ public class Main extends Application implements Fields{
         return null;
     }
 
-    //creates FormRow objects out of all strings passed and saves it in Arraylist
-    //Arraylist is returned of all FormRows
-   // @Override
-    public ArrayList<FormRow> fullyAutomated(String[] lTexts,  String[] txtFldText, String[] lConfTexts) {
-        ArrayList<FormRow> temp = new ArrayList<>();
-        for(int i = 0; i < lTexts.length; i++){
-            temp.add(createEntryField(lTexts[i], txtFldText[i], lConfTexts[i]));
-        }
-       return temp;
-    }
+
 
     public FormRow createEntryField(String labelText, String entryText, String confirmText){
         return new FormRow(labelText, entryText, confirmText, false, "");
@@ -208,28 +235,104 @@ public class Main extends Application implements Fields{
         curLabel = fr.getLabel();
         curTextEntry = fr.getTextField();
         curConfLabel = fr.getConfirmLabel();
-        nextTextEntry = nextFr.getTextField();
+        if(nextFr != null) {
+            nextTextEntry = nextFr.getTextField();
+        }
 
         if((curLabel.getText()).equals(employeeLabel)){
             //Do routine that adds nodes
+            System.out.println("First option succeeds");
+            TextField finalCurTextEntry = curTextEntry;
+            curTextEntry.setOnKeyPressed(evt -> {
+                if (evt.getCode().equals(KeyCode.ENTER)) {
+                    int constantRow;
+                    System.out.println("entered employees");
+                    String entered = finalCurTextEntry.getText();
+                    //if(isNaN(Integer.parseInt(finalCurTextEntry.getText()))){
 
-        }
-        else{
-            //do standard if pressed enter, move to next node
-            curTextEntry.setOnKeyPressed(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
+                    //}
+                    try{
+                        employeeFields = Integer.parseInt(finalCurTextEntry.getText());
+                        fieldsSoFar++;
+
+                    }
+                    catch (Exception e){
+                        System.out.println("Error with EMPLOYEE NUMBER, expected integer but error: " + e.toString());
+                    }
+                    finally{
+
+                    }
+
+                    //because shit might break
+                    try{
+
+                        System.out.println("Adding employees at row " + fr.getY());
+                        constantRow = fr.getY();
+                        //rearagning fields
+                        System.out.println("Employee Fields is " + employeeFields);
+                        System.out.println("Constant row is " + constantRow);
+                        System.out.println("Current row is " + (constantRow + employeeFields));
+                       // fieldsAdded = constantRow + employeeFields;
+                        System.out.println("TOTAL FIELDS ADDED AS OF RIGHT NOW IS: " + fieldsAdded);
+                        ArrayList<FormRow> retrieved = shiftFields(g,(constantRow + employeeFields));
+                        //add them back outside of employee
+                        addEmployeeFields(g,employeeFields,constantRow, 2);
+                        readdedFields(g,(constantRow + employeeFields),retrieved);
+
+                    }
+                    catch (Exception e){
+                        System.out.println("Error in ADDING EMPLOYEE reported row was: " + fr.getY() + ", with error" + e.toString());
+                    }
+                    finally {
+                        constantRow = fr.getY();
+                    }
+                    System.out.println("");
+
+
 
                 }
             });
-        }
 
+        }
+        else{
+            //STANDARD ENTRY SAVE FIELD
+            //do standard if pressed enter, move to next node
+            TextField finalCurTextEntry = curTextEntry;
+            TextField finalNextTextEntry = nextTextEntry;
+            Label finalCurConfLabel = curConfLabel;
+            // saveInfo = null;
+            Boolean outerSaveInfo = false;
+            //general event handler option
+            //
+            if(nextTextEntry != null) {
+                System.out.println("Event handler set for " + curTextEntry.getText() + ", will move to " + nextTextEntry.getText());
+
+                curTextEntry.setOnKeyPressed(evt -> {
+                            if (evt.getCode().equals(KeyCode.ENTER)) {
+                                System.out.println("entered");
+                                finalNextTextEntry.requestFocus();
+                                finalCurConfLabel.setText(finalCurTextEntry.getText());
+                            }
+
+                        });
+            }
+            else{
+                System.out.println("Event handler set for " + curTextEntry.getText() + " and is final node");
+                curTextEntry.setOnKeyPressed(evt -> {
+                    if (evt.getCode().equals(KeyCode.ENTER)) {
+                        System.out.println("entered Final");
+                    }
+                });
+            }
+        }
 
     }
 
+    //DEPRECATED
     //This function continually sets the Event handlers for every Textfield
     //If every textfield was the same, it would be much simple
     //But a certain textfield (Employees) requires dynamic readjusting
+
     public void setEntryEventHandlers(GridPane g, Scene sc, Stage st, ArrayList<FormRow> formRows){
         int row = 0, col = 0;
         TextField curTextEntry = null;
@@ -518,6 +621,17 @@ public class Main extends Application implements Fields{
         return retrievedFields;
     }
 
+    public void readdedFields(GridPane g, int rowToAdd, ArrayList<FormRow> toAdd){
+        ListIterator<FormRow> li = toAdd.listIterator();
+        FormRow cur;
+        while(li.hasNext()) {
+            cur = li.next();
+            g = addNode(g, cur, rowToAdd+1);
+            System.out.println("Added Node to: " + rowToAdd + 1);
+            rowToAdd++;
+        }
+    }
+
    /* public EventHandler getTextHandler(){
         EventHandler<ActionEvent> EnterHandler = event -> {
             txtField.setText("Accepted");
@@ -535,6 +649,10 @@ public class Main extends Application implements Fields{
         private TextField entryText;
         private Label confTxt;
         private String field;
+        private int xCoorLabel;
+        private int xCoorEntry;
+        private int xCoorConf;
+        private int ycoordinate;
 
         //Creates a class comprising of a row in the Form
         //Each Row has a label, text field, and comfirmation text.
@@ -573,6 +691,25 @@ public class Main extends Application implements Fields{
             }
 
         }
+
+        //sets only y coordinate for a row of nodes
+        public void setYcoordinate(int y){
+            this.ycoordinate = y;
+        }
+
+        //sets x and y coordinates for object, sets xcoordinates for nodes in row
+        public void setCoordinates(int xL, int xE, int xC, int y){
+            this.xCoorLabel = xL;
+            this.xCoorEntry = xE;
+            this.xCoorConf = xC;
+            this.ycoordinate = y;
+        }
+
+        public int getY(){
+            return this.ycoordinate;
+        }
+
+
 
        /* public TextField getPassedNode(Node n){
             return entryText;
