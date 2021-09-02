@@ -53,6 +53,8 @@ public class Main extends Application implements Fields{
     public int[] userSelectedCoordinates;
     public String[] savedInformation = new String[DEFAULT_FIELDS];
 
+    public int rowForEmployees = 0;
+
     @Override
     public void start(Stage primaryStage) throws Exception{
         //Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
@@ -222,6 +224,9 @@ public class Main extends Application implements Fields{
         return new FormRow(labelText, entryText, confirmText, false, "");
     }
 
+
+    //WHY DOES FR.GETY FAIL? SHOULD IT NOT GET THE Y POS EVERYTIME (SAME ONE). IT BREAKS WHEN ADDING EMPLOYEE FIELDS AHGAIN A
+    //AFTER ONE TIME
     //Attempt at creating an event listener one by one, depending on what the TextField is (before it is added to the GridPane)
     //Since different textfields perform slightly differently, better to set up like this
     private void setEventListenerIndividually(GridPane g, Scene sc, FormRow fr, FormRow nextFr, int r){
@@ -254,10 +259,11 @@ public class Main extends Application implements Fields{
                     try{
                         employeeFields = Integer.parseInt(finalCurTextEntry.getText());
                         fieldsSoFar++;
-
                     }
                     catch (Exception e){
+                        System.out.println("************************************************");
                         System.out.println("Error with EMPLOYEE NUMBER, expected integer but error: " + e.toString());
+                        System.out.println("************************************************");
                     }
                     finally{
 
@@ -274,10 +280,11 @@ public class Main extends Application implements Fields{
                         System.out.println("Current row is " + (constantRow + employeeFields));
                        // fieldsAdded = constantRow + employeeFields;
                         System.out.println("TOTAL FIELDS ADDED AS OF RIGHT NOW IS: " + fieldsAdded);
-                        ArrayList<FormRow> retrieved = shiftFields(g,(constantRow + employeeFields));
+                        //ArrayList<FormRow> retrieved = shiftFields(g,(constantRow + employeeFields));
                         //add them back outside of employee
+                        rowForEmployees = constantRow;
                         addEmployeeFields(g,employeeFields,constantRow, 2);
-                        readdedFields(g,(constantRow + employeeFields),retrieved);
+                        //readdedFields(g,(constantRow + employeeFields),retrieved);
 
                     }
                     catch (Exception e){
@@ -287,8 +294,6 @@ public class Main extends Application implements Fields{
                         constantRow = fr.getY();
                     }
                     System.out.println("");
-
-
 
                 }
             });
@@ -305,7 +310,7 @@ public class Main extends Application implements Fields{
             //general event handler option
             //
             if(nextTextEntry != null) {
-                System.out.println("Event handler set for " + curTextEntry.getText() + ", will move to " + nextTextEntry.getText());
+               // System.out.println("Event handler set for " + curTextEntry.getText() + ", will move to " + nextTextEntry.getText());
 
                 curTextEntry.setOnKeyPressed(evt -> {
                             if (evt.getCode().equals(KeyCode.ENTER)) {
@@ -317,7 +322,7 @@ public class Main extends Application implements Fields{
                         });
             }
             else{
-                System.out.println("Event handler set for " + curTextEntry.getText() + " and is final node");
+              //  System.out.println("Event handler set for " + curTextEntry.getText() + " and is final node");
                 curTextEntry.setOnKeyPressed(evt -> {
                     if (evt.getCode().equals(KeyCode.ENTER)) {
                         System.out.println("entered Final");
@@ -382,7 +387,9 @@ public class Main extends Application implements Fields{
                 System.out.println("Current Textfield" + tempFocus.getText());
             }
             catch (Exception e){
+                System.out.println("********************************************************");
                 System.out.println("Error getting initial Textfield: " + e);
+                System.out.println("********************************************************");
             }
             finally{
 
@@ -421,7 +428,10 @@ public class Main extends Application implements Fields{
                                 userSelectedNextTextEntry = (TextField)getNodeFromGrid(g, userSelectedCoordinates[0] + 1, userSelectedCoordinates[1] );
                             }
                             catch (Exception e){
+                                System.out.println("********************************************************");
                                 System.out.println("Unable to focus to next entry. Error: " + e.toString());
+                                System.out.println("********************************************************");
+
                             }
                         }
                         else {
@@ -437,9 +447,12 @@ public class Main extends Application implements Fields{
                             finalNextTextEntry.requestFocus();
                         }
                         catch(Exception e){
+                            System.out.println("********************************************************");
                             System.out.print("Cannot Complete: Moving to Next Field");
                             System.out.print("Maybe Field Doesn't exist");
                             System.out.print("Megh: " + e);
+                            System.out.println("********************************************************");
+
                         }
                         finally {
                             Popup notice = PopUpMessage();
@@ -487,10 +500,6 @@ public class Main extends Application implements Fields{
         //}
     }
 
-
-    // public void getEntryAndLabel(GridPane g, final int r, final int c){
-
-    //}
     public Node getNodeFromGrid(GridPane g, final int row, final int col){
         Node result = null;
         ObservableList<Node> childrens = g.getChildren();
@@ -546,13 +555,14 @@ public class Main extends Application implements Fields{
     }
 
     public void addEmployeeFields(GridPane g, int numEmployee, int curRow, int curCol){
-        System.out.println("Adding Employee fields");
-        System.out.print("Cur Rows: " + curRow + ", and cur Col: " + curCol);
+        System.out.println("-----------Adding EMPLOYEE fields------------");
+        System.out.println("Cur Rows: " + curRow + ", and cur Col: " + curCol);
         int newAdded = 0;
         if(numEmployee < 1){
             return;
         }
         ArrayList<FormRow> savedFields = shiftFields(g, curRow);
+        readdedFields(g,curRow + numEmployee,savedFields);
         ArrayList<Pair<String, Double>> employeeAndHours = getEmployeeInformation();
 
         ArrayList<ComboBox> employeeEntrees = createComboBoxFields(employeeAndHours, numEmployee);
@@ -562,6 +572,7 @@ public class Main extends Application implements Fields{
             g.add(new TextField("Employee Hours"), 1,realRow);
             newAdded++;
         }
+        System.out.println("-----------------EMPLOYEE DONE--------------");
 
 
         //adding the rest of the fields back
