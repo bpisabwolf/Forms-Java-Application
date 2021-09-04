@@ -159,7 +159,7 @@ public class Main extends Application implements Fields{
     //see FormRow object declaration at bottom of file for more info
     //returns the resulting Arraylist of FormRow objects
     // @Override
-    public ArrayList<FormRow> fullyAutomated(String[] lTexts,  String[] txtFldText, String[] lConfTexts) {
+     public ArrayList<FormRow> fullyAutomated(String[] lTexts,  String[] txtFldText, String[] lConfTexts) {
         ArrayList<FormRow> temp = new ArrayList<>();
         for(int i = 0; i < lTexts.length; i++){
             temp.add(createEntryField(lTexts[i], txtFldText[i], lConfTexts[i]));//look at FormRow object
@@ -250,7 +250,7 @@ public class Main extends Application implements Fields{
             TextField finalCurTextEntry = curTextEntry;
             curTextEntry.setOnKeyPressed(evt -> {
                 if (evt.getCode().equals(KeyCode.ENTER)) {
-                    int constantRow;
+                    int constantRow; //Row of location on the grid of the current FormRow objects
                     System.out.println("entered employees");
                     String entered = finalCurTextEntry.getText();
                     //if(isNaN(Integer.parseInt(finalCurTextEntry.getText()))){
@@ -272,18 +272,25 @@ public class Main extends Application implements Fields{
                     //because shit might break
                     try{
 
+                        System.out.println("------------------STARTING EMPLOYEE AFTER EVENT HANDLER-----------------");
                         System.out.println("Adding employees at row " + fr.getY());
                         constantRow = fr.getY();
+                        int rowToReAdd;
                         //rearagning fields
                         System.out.println("Employee Fields is " + employeeFields);
                         System.out.println("Constant row is " + constantRow);
-                        System.out.println("Current row is " + (constantRow + employeeFields));
+                        System.out.println("Current # of rows is " + (constantRow + employeeFields));
+
+                        rowToReAdd = constantRow + employeeFields;
+                        System.out.println("Fields to be readded to: " + rowToReAdd);
                        // fieldsAdded = constantRow + employeeFields;
                         System.out.println("TOTAL FIELDS ADDED AS OF RIGHT NOW IS: " + fieldsAdded);
                         //ArrayList<FormRow> retrieved = shiftFields(g,(constantRow + employeeFields));
                         //add them back outside of employee
                         rowForEmployees = constantRow;
-                        addEmployeeFields(g,employeeFields,constantRow, 2);
+                        System.out.println("");
+                        //FIX CONSTANT ROW
+                        addEmployeeFields(g,employeeFields,rowToReAdd,constantRow, 2);
                         //readdedFields(g,(constantRow + employeeFields),retrieved);
 
                     }
@@ -318,7 +325,6 @@ public class Main extends Application implements Fields{
                                 finalNextTextEntry.requestFocus();
                                 finalCurConfLabel.setText(finalCurTextEntry.getText());
                             }
-
                         });
             }
             else{
@@ -330,7 +336,6 @@ public class Main extends Application implements Fields{
                 });
             }
         }
-
     }
 
     //DEPRECATED
@@ -338,142 +343,6 @@ public class Main extends Application implements Fields{
     //If every textfield was the same, it would be much simple
     //But a certain textfield (Employees) requires dynamic readjusting
 
-    public void setEntryEventHandlers(GridPane g, Scene sc, Stage st, ArrayList<FormRow> formRows){
-        int row = 0, col = 0;
-        TextField curTextEntry = null;
-        TextField nextTextEntry = null;
-        //TextField userSelectedNextTextEntry = null;
-        Label curConfLabel = null;
-        Label curLabel = null;
-       // final int[] curFields = {0};
-
-
-        //Iterate through every field and set event handler, goes down via row
-        for(int i = 0; i < fieldsAdded; i++){
-            curLabel = (Label)getNodeFromGrid(g, i, col);//Gets Label from coordinates
-            curTextEntry = (TextField) getNodeFromGrid(g, i, col + 1);//Gets Entry Textfield from Coordinates
-            nextTextEntry = (TextField)getNodeFromGrid(g,i + 1, col + 1 );//Gets the Next Text Entry from coordinates
-            curConfLabel = (Label)getNodeFromGrid(g, i, col + 2);//
-
-            //checking user selected field
-
-/*
-            try {
-                //userSelectedLabel = (Label) getNodeFromGrid(g, userSelectedCoordinates[0], userSelectedCoordinates[1] - 1);
-            }
-            catch (Exception e){
-                if(userSelectedLabel)
-                //System.out.println("Problem: " + userSelectedTextField.getText());
-                //System.out.println("Current Entry Textfield: " + userSelectedTextField.getText());
-            }
-            finally {
-               // System.out.println("At entry field: " + userSelectedTextField.getText());
-                //Platform.exit();
-            }
-            */
-
-            //userSelectedNextTextEntry = (TextField)getNodeFromGrid(g, userSelectedCoordinates[0] + 1, userSelectedCoordinates[1] );
-            //userSelectedConfLabel = (Label)getNodeFromGrid(g, userSelectedCoordinates[0], userSelectedCoordinates[1] + 1);
-
-
-            TextField tempFocus = getFocusFromGrid(g, sc, formRows, userSelectedCoordinates);
-            if(tempFocus == null){
-                System.out.println("TEXTFIELD IS NULL BABY");
-            }
-            else{
-                System.out.println("ALL IS GOOD");
-            }
-            try{
-                System.out.println("Current Textfield" + tempFocus.getText());
-            }
-            catch (Exception e){
-                System.out.println("********************************************************");
-                System.out.println("Error getting initial Textfield: " + e);
-                System.out.println("********************************************************");
-            }
-            finally{
-
-            }
-
-            //Implement EVENT HANDLER
-            Label finalCurLabel = curLabel;
-            TextField finalCurTextEntry = curTextEntry;
-            Label finalCurConfLabel = curConfLabel;
-            TextField finalNextTextEntry = nextTextEntry;
-            TextField finalUserSelectedNextTextEntry = userSelectedNextTextEntry;
-            //boolean finalNode = false;
-            int finalRow =  i;
-            int finalCol = col + 1;
-            //int customAddRow = 0;
-            //int customAddCol = 0;
-            //Scene myScene = g.getScene();
-            //int[] neededVals = {0,0};
-
-            finalCurTextEntry.setOnAction(new EventHandler<ActionEvent>() {
-
-                @Override
-                public void handle(ActionEvent event) {
-
-                    textToSave = finalCurTextEntry.getText();
-                    finalCurConfLabel.setText(textToSave);
-                    System.out.println(fieldsSoFar);
-                    System.out.println(fieldsAdded);
-
-
-                    //IF YOU CHANGE THIS, THEN YOU MUST CHANGE STRING I
-                    if((finalCurLabel.getText()).equals(employeeLabel) || (userSelectedLabel.getText()).equals(employeeLabel)){
-                        if((userSelectedLabel.getText()).equals(employeeLabel)) {
-                            addEmployeeFields(g, parseInt(userSelectedConfLabel.getText()), finalRow, finalCol);
-                            try{
-                                userSelectedNextTextEntry = (TextField)getNodeFromGrid(g, userSelectedCoordinates[0] + 1, userSelectedCoordinates[1] );
-                            }
-                            catch (Exception e){
-                                System.out.println("********************************************************");
-                                System.out.println("Unable to focus to next entry. Error: " + e.toString());
-                                System.out.println("********************************************************");
-
-                            }
-                        }
-                        else {
-                            addEmployeeFields(g, parseInt(finalCurConfLabel.getText()), finalRow, finalCol);
-                        }
-                    }
-                    else if(finalCurLabel.equals(teminationLabel)){
-                        //FIGURE OUT HOW TO DELETE FIELDS AND ADD FIELDS FOR EMPLOYEE
-
-                    }
-                    else{
-                        try{
-                            finalNextTextEntry.requestFocus();
-                        }
-                        catch(Exception e){
-                            System.out.println("********************************************************");
-                            System.out.print("Cannot Complete: Moving to Next Field");
-                            System.out.print("Maybe Field Doesn't exist");
-                            System.out.print("Megh: " + e);
-                            System.out.println("********************************************************");
-
-                        }
-                        finally {
-                            Popup notice = PopUpMessage();
-                            EventHandler<ActionEvent> pEvent =
-                                    new EventHandler<ActionEvent>() {
-                                        public void handle(ActionEvent e)
-                                        {
-                                            if (!notice.isShowing())
-                                                notice.show(st);
-                                        }
-                                    };
-                            finalCurTextEntry.setOnAction(pEvent);
-
-                        }
-                    }
-
-                   fieldsSoFar++;
-                }
-            });
-        }
-    }
 
 
     //returns null if what was clicked was not a textfield.
@@ -554,24 +423,42 @@ public class Main extends Application implements Fields{
         return popup;
     }
 
-    public void addEmployeeFields(GridPane g, int numEmployee, int curRow, int curCol){
+    public void addEmployeeFields(GridPane g, int numEmployee, int rowToReAdd, int curRow, int curCol){
         System.out.println("-----------Adding EMPLOYEE fields------------");
-        System.out.println("Cur Rows: " + curRow + ", and cur Col: " + curCol);
+        System.out.println("Current Row to add Employees " + curRow + ", and cur Col: " + curCol);
         int newAdded = 0;
+        ComboBox cur;
         if(numEmployee < 1){
             return;
         }
+        //Must figure out how to adjust row at chich the old fields are located at
         ArrayList<FormRow> savedFields = shiftFields(g, curRow);
-        readdedFields(g,curRow + numEmployee,savedFields);
+        readdedFields(g,rowToReAdd,savedFields);
         ArrayList<Pair<String, Double>> employeeAndHours = getEmployeeInformation();
 
+
         ArrayList<ComboBox> employeeEntrees = createComboBoxFields(employeeAndHours, numEmployee);
+        /*
         for(int i = 0; i < numEmployee; i++){
-            int realRow = (curRow + 1) + i;
+            int realRow = (curRow + 1) + i;//What is this for
             g.add(employeeEntrees.get(i), 0, realRow);
             g.add(new TextField("Employee Hours"), 1,realRow);
             newAdded++;
         }
+        */
+
+
+        //iterator version
+        ListIterator<ComboBox> li = employeeEntrees.listIterator();
+        int rowAddedto = curRow + 1; //row to add employee box too
+
+        while(li.hasNext()){
+            cur = li.next();
+            g.add(cur, 0, rowAddedto);
+            g.add(new TextField("Employee Hours"),1, rowAddedto);
+            rowAddedto++;
+        }
+
         System.out.println("-----------------EMPLOYEE DONE--------------");
 
 
@@ -638,7 +525,7 @@ public class Main extends Application implements Fields{
         while(li.hasNext()) {
             cur = li.next();
             g = addNode(g, cur, rowToAdd+1);
-            System.out.println("Added Node to: " + rowToAdd + 1);
+            System.out.println("Added Node to: " + (rowToAdd + 1));
             rowToAdd++;
         }
     }
