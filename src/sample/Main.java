@@ -44,7 +44,10 @@ public class Main extends Application implements Fields{
     public int fieldsSoFar = 0;
     public final int DEFAULT_FIELDS = 8;
     public int employeeFields = 0;
+    public int employeeFieldsAssedSoFar = 0;
     String employeeLabel = "# of Employees Working";//String for employees working field, to keep track of database use
+    public ArrayList<FormRow> backUp; //in case shit gets fucked up and i lose some nodes
+
     String teminationLabel = "Pallets on Floor";//Very last label, act as a termination label
     public TextField userSelectedTextField;
     public Label userSelectedLabel;
@@ -266,7 +269,7 @@ public class Main extends Application implements Fields{
                         System.out.println("************************************************");
                     }
                     finally{
-
+                        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CLEARED EMPLOYEE NUMBER AREA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                     }
 
                     //because shit might break
@@ -299,6 +302,7 @@ public class Main extends Application implements Fields{
                     }
                     finally {
                         constantRow = fr.getY();
+                        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~ CLEARED ADDING EMPLOYEE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                     }
                     System.out.println("");
 
@@ -423,29 +427,40 @@ public class Main extends Application implements Fields{
         return popup;
     }
 
+
+    public void checkSavedFieldsContents(ArrayList<FormRow> myField){
+        ListIterator<FormRow> li = myField.listIterator();
+        FormRow cur;
+        while(li.hasNext()){
+            cur = li.next();
+            System.out.println("Label saved: " + cur.getLabel().getText());
+            System.out.println("Textfield saved: " + cur.getTextField().getText());
+            System.out.println("Conf Label saved: " + cur.getConfirmLabel().getText());
+
+        }
+    }
     public void addEmployeeFields(GridPane g, int numEmployee, int rowToReAdd, int curRow, int curCol){
         System.out.println("-----------Adding EMPLOYEE fields------------");
         System.out.println("Current Row to add Employees " + curRow + ", and cur Col: " + curCol);
+        System.out.println("Employee fields added so far: " + employeeFieldsAssedSoFar);
+        System.out.println("Row where saved fields will be readded to: " + rowToReAdd);
         int newAdded = 0;
         ComboBox cur;
         if(numEmployee < 1){
             return;
         }
         //Must figure out how to adjust row at chich the old fields are located at
-        ArrayList<FormRow> savedFields = shiftFields(g, curRow);
+        System.out.println("********************** ENTERING SHIFT FIELDS, RETRIEVING FIELDS TO SAVE - START *******************");
+        ArrayList<FormRow> savedFields = shiftFields(g, curRow + employeeFieldsAssedSoFar);
+        System.out.println("********************** SUCCESSFUL RETRIEVING FIELDS TO SAVE- END *******************");
+        System.out.println("--------CHECKING SAVED FIELDS BEGIN--------");
+        checkSavedFieldsContents(savedFields);
+        System.out.println("%%%%%%%%%%%%%%%% SUCCESSFULLY CLEARED SAVED FIELDS %%%%%%%%%%%%%%%%%%");
         readdedFields(g,rowToReAdd,savedFields);
         ArrayList<Pair<String, Double>> employeeAndHours = getEmployeeInformation();
 
 
         ArrayList<ComboBox> employeeEntrees = createComboBoxFields(employeeAndHours, numEmployee);
-        /*
-        for(int i = 0; i < numEmployee; i++){
-            int realRow = (curRow + 1) + i;//What is this for
-            g.add(employeeEntrees.get(i), 0, realRow);
-            g.add(new TextField("Employee Hours"), 1,realRow);
-            newAdded++;
-        }
-        */
 
 
         //iterator version
@@ -458,6 +473,7 @@ public class Main extends Application implements Fields{
             g.add(new TextField("Employee Hours"),1, rowAddedto);
             rowAddedto++;
         }
+        employeeFieldsAssedSoFar= employeeFields;
 
         System.out.println("-----------------EMPLOYEE DONE--------------");
 
@@ -503,7 +519,7 @@ public class Main extends Application implements Fields{
         System.out.println("Current Fields added:  " + fieldsAdded);
         System.out.println("Field number at: " + row);
 
-        for(int i = row+1; i < fieldsAdded;i++){
+        for(int i = row+1; i < (row + 1) + 3;i++){
             l = (Label)getNodeFromGrid(g, i, 0);
             entry = (TextField)getNodeFromGrid(g, i, 1);
             conf = (Label)getNodeFromGrid(g, i, 2);
@@ -528,6 +544,11 @@ public class Main extends Application implements Fields{
             System.out.println("Added Node to: " + (rowToAdd + 1));
             rowToAdd++;
         }
+    }
+
+    public void deleteOldEmployeeFields(GridPane g, int rowToDelete, int numToDelete){
+        Node col1Node, col2Node, col3Node;
+
     }
 
    /* public EventHandler getTextHandler(){
